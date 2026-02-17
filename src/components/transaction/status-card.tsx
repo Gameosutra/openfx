@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import type { TransactionStatus, TransactionResponse } from "@/lib/types"
+import { TransactionStatusValue } from "@/lib/types"
 import {
   CheckCircle2,
   Clock,
@@ -17,34 +18,38 @@ import {
   ExternalLink,
 } from "lucide-react"
 
-const STATUS_STEPS: TransactionStatus[] = ["processing", "sent", "settled"]
+const STATUS_STEPS: TransactionStatus[] = [
+  TransactionStatusValue.Processing,
+  TransactionStatusValue.Sent,
+  TransactionStatusValue.Settled,
+]
 
 const STATUS_CONFIG: Record<
   TransactionStatus,
   { label: string; description: string; icon: React.ReactNode; color: string; badgeVariant: "default" | "secondary" | "destructive" | "outline" }
 > = {
-  processing: {
+  [TransactionStatusValue.Processing]: {
     label: "Processing",
     description: "Your payment is being processed. This may take a moment.",
     icon: <Clock className="h-6 w-6" />,
     color: "text-muted-foreground",
     badgeVariant: "secondary",
   },
-  sent: {
+  [TransactionStatusValue.Sent]: {
     label: "Sent",
     description: "Your transfer has been sent and is on its way to the recipient.",
     icon: <Send className="h-6 w-6" />,
     color: "text-chart-2",
     badgeVariant: "outline",
   },
-  settled: {
+  [TransactionStatusValue.Settled]: {
     label: "Settled",
     description: "Transfer complete. Funds have been delivered successfully.",
     icon: <CheckCircle2 className="h-6 w-6" />,
     color: "text-success",
     badgeVariant: "default",
   },
-  failed: {
+  [TransactionStatusValue.Failed]: {
     label: "Failed",
     description: "Something went wrong with your transfer. You have not been charged.",
     icon: <AlertTriangle className="h-6 w-6" />,
@@ -70,10 +75,10 @@ export function StatusCard({
   onRetry,
   onNewTransfer,
 }: StatusCardProps) {
-  const currentStatus = transaction?.status ?? "processing"
+  const currentStatus = transaction?.status ?? TransactionStatusValue.Processing
   const config = STATUS_CONFIG[currentStatus]
   const currentStepIndex = STATUS_STEPS.indexOf(currentStatus)
-  const isTerminal = currentStatus === "settled" || currentStatus === "failed"
+  const isTerminal = currentStatus === TransactionStatusValue.Settled || currentStatus === TransactionStatusValue.Failed
 
   return (
     <Card className="border-border bg-card">
@@ -81,14 +86,14 @@ export function StatusCard({
         <div className="flex flex-col items-center gap-3 text-center">
           <div
             className={`flex h-16 w-16 items-center justify-center rounded-full ${
-              currentStatus === "settled"
+              currentStatus === TransactionStatusValue.Settled
                 ? "bg-success/10"
-                : currentStatus === "failed"
+                : currentStatus === TransactionStatusValue.Failed
                 ? "bg-destructive/10"
                 : "bg-secondary"
             } ${config.color}`}
           >
-            {currentStatus === "processing" && (isLoading || !transaction) ? (
+            {currentStatus === TransactionStatusValue.Processing && (isLoading || !transaction) ? (
               <Loader2 className="h-6 w-6 animate-spin" />
             ) : (
               config.icon
@@ -104,7 +109,7 @@ export function StatusCard({
           </div>
         </div>
 
-        {currentStatus !== "failed" && (
+        {currentStatus !== TransactionStatusValue.Failed && (
           <div className="flex items-center justify-center gap-2">
             {STATUS_STEPS.map((step, index) => {
               const stepConfig = STATUS_CONFIG[step]
@@ -183,7 +188,7 @@ export function StatusCard({
         <Separator />
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          {currentStatus === "failed" && (
+          {currentStatus === TransactionStatusValue.Failed && (
             <>
               <Button
                 variant="outline"
@@ -204,7 +209,7 @@ export function StatusCard({
               </Button>
             </>
           )}
-          {currentStatus === "settled" && (
+          {currentStatus === TransactionStatusValue.Settled && (
             <Button
               onClick={onNewTransfer}
               className="flex-1 h-12 text-base bg-primary text-primary-foreground hover:bg-primary/90"

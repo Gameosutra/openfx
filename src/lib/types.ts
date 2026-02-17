@@ -23,13 +23,23 @@ export type QuoteResponse = {
   expiresAt: number // timestamp in ms
 }
 
+/** Quote state status – single source of truth for type-safe checks. */
+export const QuoteStatus = {
+  Idle: "idle",
+  Loading: "loading",
+  Success: "success",
+  Expired: "expired",
+  Error: "error",
+} as const
+export type QuoteStatusValue = (typeof QuoteStatus)[keyof typeof QuoteStatus]
+
 /** Explicit quote state machine — no boolean flag explosion. */
 export type QuoteState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "success"; data: QuoteResponse; expiresAt: number }
-  | { status: "expired"; data: QuoteResponse; expiresAt: number }
-  | { status: "error"; message: string }
+  | { status: typeof QuoteStatus.Idle }
+  | { status: typeof QuoteStatus.Loading }
+  | { status: typeof QuoteStatus.Success; data: QuoteResponse; expiresAt: number }
+  | { status: typeof QuoteStatus.Expired; data: QuoteResponse; expiresAt: number }
+  | { status: typeof QuoteStatus.Error; message: string }
 
 export type PayRequest = {
   quoteId: string
@@ -39,11 +49,15 @@ export type PayResponse = {
   transactionId: string
 }
 
+/** Transaction status – single source of truth for type-safe checks. */
+export const TransactionStatusValue = {
+  Processing: "processing",
+  Sent: "sent",
+  Settled: "settled",
+  Failed: "failed",
+} as const
 export type TransactionStatus =
-  | "processing"
-  | "sent"
-  | "settled"
-  | "failed"
+  (typeof TransactionStatusValue)[keyof typeof TransactionStatusValue]
 
 export type TransactionResponse = {
   id: string

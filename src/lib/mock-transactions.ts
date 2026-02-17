@@ -1,4 +1,5 @@
 import type { TransactionResponse, TransactionStatus } from "./types"
+import { TransactionStatusValue } from "./types"
 
 /** Server-side in-memory store for mock transactions. Status derived from createdAt on read. */
 const transactions = new Map<
@@ -18,10 +19,10 @@ export function getTransaction(id: string): TransactionResponse | null {
   if (!row) return null
 
   let status = row.status
-  if (status === "processing" && !row.failed) {
+  if (status === TransactionStatusValue.Processing && !row.failed) {
     const elapsed = Date.now() - new Date(row.createdAt).getTime()
-    if (elapsed > 6_000) status = "settled"
-    else if (elapsed > 3_000) status = "sent"
+    if (elapsed > 6_000) status = TransactionStatusValue.Settled
+    else if (elapsed > 3_000) status = TransactionStatusValue.Sent
   }
 
   return {

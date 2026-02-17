@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
-import type { PayRequest, PayResponse, TransactionStatus } from "@/lib/types"
+import type { PayRequest, PayResponse } from "@/lib/types"
+import { TransactionStatusValue } from "@/lib/types"
 import { setTransaction } from "@/lib/mock-transactions"
 
 function generateId(): string {
@@ -30,7 +31,7 @@ export async function POST(request: Request) {
 
   setTransaction(transactionId, {
     id: transactionId,
-    status: failed ? "failed" : "processing",
+    status: failed ? TransactionStatusValue.Failed : TransactionStatusValue.Processing,
     sourceCurrency: "",
     destinationCurrency: "",
     sourceAmount: 0,

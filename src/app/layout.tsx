@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { Inter, Space_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Providers } from "@/components/providers"
-import "./globals.css"
+import "@/styles/globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const spaceMono = Space_Mono({
