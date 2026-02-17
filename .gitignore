@@ -12,6 +12,7 @@ dist
 .DS_Store
 *.pem
 *.log
+*.tsbuildinfo
 
 # local env files
 .env

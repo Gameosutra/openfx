@@ -15,7 +15,8 @@ export async function POST(request: Request) {
 
   const body = (await request.json()) as PayRequest
 
-  if (Math.random() < 0.1) {
+  // Optional: simulate pay failure (e.g. 2% — set to 0 to disable)
+  if (Math.random() < 0.02) {
     return NextResponse.json(
       { error: "Payment processing failed. Please try again." },
       { status: 502 }
@@ -24,7 +25,8 @@ export async function POST(request: Request) {
 
   const transactionId = `TXN-${generateId()}`
   const now = new Date().toISOString()
-  const failed = Math.random() < 0.05
+  // Optional: simulate transaction failure after pay (e.g. 2% — set to false to always succeed)
+  const failed = Math.random() < 0.02
 
   setTransaction(transactionId, {
     id: transactionId,
