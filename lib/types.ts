@@ -23,6 +23,14 @@ export type QuoteResponse = {
   expiresAt: number // timestamp in ms
 }
 
+/** Explicit quote state machine — no boolean flag explosion. */
+export type QuoteState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "success"; data: QuoteResponse; expiresAt: number }
+  | { status: "expired"; data: QuoteResponse; expiresAt: number }
+  | { status: "error"; message: string }
+
 export type PayRequest = {
   quoteId: string
 }
@@ -50,4 +58,5 @@ export type TransactionResponse = {
   updatedAt: string
 }
 
+/** For step indicator / navigation. */
 export type AppStep = "quote" | "confirm" | "status"
