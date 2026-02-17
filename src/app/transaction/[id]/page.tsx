@@ -4,10 +4,10 @@ import { useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { AppShell } from "@/components/app-shell"
-import { StatusCard } from "@/components/transaction/StatusCard"
+import { StatusCard } from "@/components/transaction/status-card"
 import { fetchTransactionStatus } from "@/lib/api"
 import { TRANSACTION_POLL_INTERVAL_MS } from "@/lib/constants"
-import { useQuoteStore } from "@/store/quoteStore"
+import { useQuoteStore } from "@/store/quote-store"
 
 export default function TransactionStatusPage() {
   const params = useParams()

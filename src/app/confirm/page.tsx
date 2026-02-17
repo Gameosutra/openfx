@@ -4,8 +4,8 @@ import { useEffect, useCallback, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useMutation } from "@tanstack/react-query"
 import { AppShell } from "@/components/app-shell"
-import { ConfirmCard } from "@/components/payment/ConfirmCard"
-import { useQuoteStore } from "@/store/quoteStore"
+import { ConfirmCard } from "@/components/payment/confirm-card"
+import { useQuoteStore } from "@/store/quote-store"
 import { submitPayment } from "@/lib/api"
 
 export default function ConfirmPage() {

@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import { formatCurrency } from "@/lib/currencies"
 import type { QuoteResponse } from "@/lib/types"
 import { ArrowLeft, Clock, ShieldCheck, Send, AlertCircle, Loader2 } from "lucide-react"
-import { QuoteTimer } from "@/components/quote/QuoteTimer"
+import { QuoteTimer } from "@/components/quote/quote-timer"
 
 type ConfirmCardProps = {
   quote: QuoteResponse
