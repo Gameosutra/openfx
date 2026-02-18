@@ -2,16 +2,14 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { formatCurrency } from "@/lib/currencies"
 import type { QuoteResponse } from "@/lib/types"
-import { ArrowLeft, Clock, ShieldCheck, Send, AlertCircle, Loader2 } from "lucide-react"
-import { QuoteTimer } from "@/components/quote/quote-timer"
+import { ArrowLeft, ShieldCheck, Send, AlertCircle, Loader2 } from "lucide-react"
+import { QuoteTimer } from "@/components/common/quote-timer"
 
 type ConfirmCardProps = {
   quote: QuoteResponse
-  expiresAt: number
   isExpired: boolean
   onBack: () => void
   onConfirm: () => void
@@ -21,7 +19,6 @@ type ConfirmCardProps = {
 
 export function ConfirmCard({
   quote,
-  expiresAt,
   isExpired,
   onBack,
   onConfirm,

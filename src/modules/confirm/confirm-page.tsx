@@ -59,7 +59,6 @@ export function ConfirmPage() {
     <AppShell>
       <ConfirmCard
         quote={quoteData}
-        expiresAt={expiresAt}
         isExpired={false}
         onBack={handleBack}
         onConfirm={handleConfirm}
