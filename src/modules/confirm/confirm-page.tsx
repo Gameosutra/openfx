@@ -2,16 +2,20 @@
 
 import { useEffect, useCallback, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useMutation } from "@tanstack/react-query"
 import { AppShell } from "@/components/app-shell"
 import { ConfirmCard } from "@/components/payment/confirm-card"
 import { useQuoteStore } from "@/store/quote-store"
-import { submitPayment } from "@/lib/api"
+import { usePayMutation } from "@/hooks/use-pay-mutation"
 import { QuoteStatus } from "@/lib/types"
 
 export function ConfirmPage() {
   const router = useRouter()
   const [now, setNow] = useState(() => Date.now())
+
+  const payMutation = usePayMutation({
+    onSuccess: (data) => router.push(`/transaction/${data.transactionId}`),
+  })
+
   const status = useQuoteStore((s) => s.status)
   const quoteData = useQuoteStore((s) =>
     s.status === QuoteStatus.Success || s.status === QuoteStatus.Expired ? s.data : null
@@ -20,14 +24,6 @@ export function ConfirmPage() {
     s.status === QuoteStatus.Success || s.status === QuoteStatus.Expired ? s.expiresAt! : 0
   )
   const expire = useQuoteStore((s) => s.expire)
-
-  const payMutation = useMutation({
-    mutationFn: submitPayment,
-    retry: 0,
-    onSuccess: (data) => {
-      router.push(`/transaction/${data.transactionId}`)
-    },
-  })
 
   useEffect(() => {
     if (status !== QuoteStatus.Success) return

@@ -2,7 +2,6 @@
 
 import { useEffect, useCallback, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useMutation } from "@tanstack/react-query"
 import { AppShell } from "@/components/app-shell"
 import { QuoteForm } from "@/components/quote/quote-form"
 import { QuoteTimer } from "@/components/quote/quote-timer"
@@ -10,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { useQuoteStore } from "@/store/quote-store"
-import { fetchQuote } from "@/lib/api"
+import { useQuoteMutation } from "@/hooks/use-quote-mutation"
 import { formatCurrency } from "@/lib/currencies"
 import { QUOTE_EXPIRY_CHECK_INTERVAL_MS } from "@/lib/constants"
 import { QuoteStatus } from "@/lib/types"
@@ -19,6 +18,8 @@ import { ArrowRight, RefreshCw, Loader2 } from "lucide-react"
 export function QuotePage() {
   const router = useRouter()
   const [now, setNow] = useState(() => Date.now())
+  const { requestQuote, mutate } = useQuoteMutation()
+
   const status = useQuoteStore((s) => s.status)
   const quoteData = useQuoteStore((s) =>
     s.status === QuoteStatus.Success || s.status === QuoteStatus.Expired ? s.data : null
@@ -26,22 +27,8 @@ export function QuotePage() {
   const expiresAt = useQuoteStore((s) =>
     s.status === QuoteStatus.Success || s.status === QuoteStatus.Expired ? s.expiresAt! : 0
   )
-  const setLoading = useQuoteStore((s) => s.setLoading)
-  const setSuccess = useQuoteStore((s) => s.setSuccess)
-  const setError = useQuoteStore((s) => s.setError)
   const clearError = useQuoteStore((s) => s.clearError)
   const expire = useQuoteStore((s) => s.expire)
-  const reset = useQuoteStore((s) => s.reset)
-
-  const quoteMutation = useMutation({
-    mutationFn: fetchQuote,
-    onMutate: () => setLoading(),
-    onSuccess: (data) => setSuccess(data, data.expiresAt),
-    onError: (err) =>
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch quote. Please try again."
-      ),
-  })
 
   useEffect(() => {
     if (status !== QuoteStatus.Success && status !== QuoteStatus.Expired) return
@@ -57,15 +44,10 @@ export function QuotePage() {
   }, [status, expire])
 
   const handleRequestQuote = useCallback(
-    (params: {
-      sourceCurrency: string
-      destinationCurrency: string
-      amount: number
-    }) => {
-      reset()
-      quoteMutation.mutate(params)
+    (params: { sourceCurrency: string; destinationCurrency: string; amount: number }) => {
+      requestQuote(params)
     },
-    [quoteMutation, reset]
+    [requestQuote]
   )
 
   const handleContinue = useCallback(() => {
@@ -77,15 +59,15 @@ export function QuotePage() {
 
   const handleRefreshQuote = useCallback(() => {
     if (!quoteData) return
-    quoteMutation.mutate({
+    mutate({
       sourceCurrency: quoteData.sourceCurrency,
       destinationCurrency: quoteData.destinationCurrency,
       amount: quoteData.sourceAmount,
     })
-  }, [quoteData, quoteMutation])
+  }, [quoteData, mutate])
 
   const isLoading = status === QuoteStatus.Loading
-  const error = useQuoteStore((s) =>
+  const errorMessage = useQuoteStore((s) =>
     s.status === QuoteStatus.Error ? s.message : null
   )
   const isQuoteExpired =
@@ -97,7 +79,7 @@ export function QuotePage() {
         <QuoteForm
           onRequestQuote={handleRequestQuote}
           isLoading={isLoading}
-          error={error}
+          error={errorMessage}
           onClearError={clearError}
         />
 
@@ -106,10 +88,7 @@ export function QuotePage() {
             <CardContent className="flex flex-col gap-5 pt-6">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-foreground">Your Quote</h3>
-                <QuoteTimer
-                  expiresAt={expiresAt}
-                  isExpired={isQuoteExpired}
-                />
+                <QuoteTimer expiresAt={expiresAt} isExpired={isQuoteExpired} />
               </div>
               <Separator />
               <div className="flex flex-col gap-3">
