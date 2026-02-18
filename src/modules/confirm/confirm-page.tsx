@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useCallback, useState } from "react"
+import { useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { AppShell } from "@/components/app-shell"
 import { ConfirmCard } from "@/components/payment/confirm-card"
@@ -10,7 +10,6 @@ import { QuoteStatus } from "@/lib/types"
 
 export function ConfirmPage() {
   const router = useRouter()
-  const [now, setNow] = useState(() => Date.now())
 
   const payMutation = usePayMutation({
     onSuccess: (data) => router.push(`/transaction/${data.transactionId}`),
@@ -23,21 +22,8 @@ export function ConfirmPage() {
   const expiresAt = useQuoteStore((s) =>
     s.status === QuoteStatus.Success || s.status === QuoteStatus.Expired ? s.expiresAt! : 0
   )
-  const expire = useQuoteStore((s) => s.expire)
 
-  useEffect(() => {
-    if (status !== QuoteStatus.Success) return
-    const interval = setInterval(() => {
-      setNow(Date.now())
-      if (Date.now() > expiresAt) {
-        expire()
-      }
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [status, expiresAt, expire])
-
-  const isExpired =
-    status === QuoteStatus.Expired || (status === QuoteStatus.Success && now > expiresAt)
+  const isExpired = status === QuoteStatus.Expired
 
   useEffect(() => {
     if (!quoteData) {
@@ -46,13 +32,8 @@ export function ConfirmPage() {
     }
     if (status === QuoteStatus.Expired) {
       router.replace("/quote")
-      return
     }
-    if (status === QuoteStatus.Success && now > expiresAt) {
-      expire()
-      router.replace("/quote")
-    }
-  }, [quoteData, status, expiresAt, now, router, expire])
+  }, [quoteData, status, router])
 
   const handleBack = useCallback(() => {
     router.push("/quote")

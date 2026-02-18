@@ -2,17 +2,26 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Clock } from "lucide-react"
+import { useQuoteStore } from "@/store/quote-store"
+import { useQuoteCountdown } from "@/hooks/use-quote-countdown"
+import { QuoteStatus } from "@/lib/types"
 
-type QuoteTimerProps = {
-  expiresAt: number
-  isExpired: boolean
-}
+/** Shows countdown or "Expired" from quote store. Re-renders only inside this component. */
+export function QuoteTimer() {
+  const status = useQuoteStore((s) => s.status)
+  const expiresAt = useQuoteStore((s) =>
+    s.status === QuoteStatus.Success || s.status === QuoteStatus.Expired ? s.expiresAt! : 0
+  )
+  const expire = useQuoteStore((s) => s.expire)
 
-/** Shows countdown or "Expired". Parent should drive isExpired from Date.now() vs expiresAt. */
-export function QuoteTimer({ expiresAt, isExpired }: QuoteTimerProps) {
-  const secondsLeft = isExpired
-    ? 0
-    : Math.max(0, Math.floor((expiresAt - Date.now()) / 1000))
+  const { secondsLeft, isExpired } = useQuoteCountdown(expiresAt, expire)
+
+  if (
+    (status !== QuoteStatus.Success && status !== QuoteStatus.Expired) ||
+    !expiresAt
+  ) {
+    return null
+  }
 
   return (
     <Badge

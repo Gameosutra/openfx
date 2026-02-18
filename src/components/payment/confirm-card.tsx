@@ -35,7 +35,7 @@ export function ConfirmCard({
           <h3 className="text-xl font-semibold text-foreground">
             Confirm Transfer
           </h3>
-          <QuoteTimer expiresAt={expiresAt} isExpired={isExpired} />
+          <QuoteTimer />
         </div>
 
         <Separator />

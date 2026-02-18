@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useCallback, useState } from "react"
+import { useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { AppShell } from "@/components/app-shell"
 import { QuoteForm } from "@/components/quote/quote-form"
@@ -11,37 +11,18 @@ import { Separator } from "@/components/ui/separator"
 import { useQuoteStore } from "@/store/quote-store"
 import { useQuoteMutation } from "@/hooks/use-quote-mutation"
 import { formatCurrency } from "@/lib/currencies"
-import { QUOTE_EXPIRY_CHECK_INTERVAL_MS } from "@/lib/constants"
 import { QuoteStatus } from "@/lib/types"
 import { ArrowRight, RefreshCw, Loader2 } from "lucide-react"
 
 export function QuotePage() {
   const router = useRouter()
-  const [now, setNow] = useState(() => Date.now())
   const { requestQuote, mutate } = useQuoteMutation()
 
   const status = useQuoteStore((s) => s.status)
   const quoteData = useQuoteStore((s) =>
     s.status === QuoteStatus.Success || s.status === QuoteStatus.Expired ? s.data : null
   )
-  const expiresAt = useQuoteStore((s) =>
-    s.status === QuoteStatus.Success || s.status === QuoteStatus.Expired ? s.expiresAt! : 0
-  )
   const clearError = useQuoteStore((s) => s.clearError)
-  const expire = useQuoteStore((s) => s.expire)
-
-  useEffect(() => {
-    if (status !== QuoteStatus.Success && status !== QuoteStatus.Expired) return
-    const interval = setInterval(() => {
-      const t = Date.now()
-      setNow(t)
-      const state = useQuoteStore.getState()
-      if (state.status === QuoteStatus.Success && t > state.expiresAt) {
-        expire()
-      }
-    }, QUOTE_EXPIRY_CHECK_INTERVAL_MS)
-    return () => clearInterval(interval)
-  }, [status, expire])
 
   const handleRequestQuote = useCallback(
     (params: { sourceCurrency: string; destinationCurrency: string; amount: number }) => {
@@ -70,8 +51,7 @@ export function QuotePage() {
   const errorMessage = useQuoteStore((s) =>
     s.status === QuoteStatus.Error ? s.message : null
   )
-  const isQuoteExpired =
-    status === QuoteStatus.Expired || (status === QuoteStatus.Success && now > expiresAt)
+  const isQuoteExpired = status === QuoteStatus.Expired
 
   return (
     <AppShell>
@@ -88,7 +68,7 @@ export function QuotePage() {
             <CardContent className="flex flex-col gap-5 pt-6">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-foreground">Your Quote</h3>
-                <QuoteTimer expiresAt={expiresAt} isExpired={isQuoteExpired} />
+                <QuoteTimer />
               </div>
               <Separator />
               <div className="flex flex-col gap-3">

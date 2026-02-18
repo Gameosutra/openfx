@@ -17,6 +17,7 @@ import {
   Headphones,
   ExternalLink,
 } from "lucide-react"
+import { StatusStepItem } from "@/components/transaction/status-step-item"
 
 const STATUS_STEPS: TransactionStatus[] = [
   TransactionStatusValue.Processing,
@@ -111,46 +112,16 @@ export function StatusCard({
 
         {currentStatus !== TransactionStatusValue.Failed && (
           <div className="flex items-center justify-center gap-2">
-            {STATUS_STEPS.map((step, index) => {
-              const stepConfig = STATUS_CONFIG[step]
-              const isCompleted = index <= currentStepIndex
-              const isCurrent = index === currentStepIndex
-              return (
-                <div key={step} className="flex items-center gap-2">
-                  <div className="flex flex-col items-center gap-1">
-                    <div
-                      className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium transition-all ${
-                        isCompleted
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-secondary text-muted-foreground"
-                      } ${isCurrent ? "ring-2 ring-primary/30" : ""}`}
-                    >
-                      {isCompleted && index < currentStepIndex ? (
-                        <CheckCircle2 className="h-4 w-4" />
-                      ) : (
-                        index + 1
-                      )}
-                    </div>
-                    <span
-                      className={`text-xs ${
-                        isCompleted
-                          ? "font-medium text-foreground"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {stepConfig.label}
-                    </span>
-                  </div>
-                  {index < STATUS_STEPS.length - 1 && (
-                    <div
-                      className={`h-px w-8 sm:w-12 ${
-                        index < currentStepIndex ? "bg-primary" : "bg-border"
-                      }`}
-                    />
-                  )}
-                </div>
-              )
-            })}
+            {STATUS_STEPS.map((step, index) => (
+              <StatusStepItem
+                key={step}
+                label={STATUS_CONFIG[step].label}
+                isCompleted={index <= currentStepIndex}
+                isCurrent={index === currentStepIndex}
+                showConnector={index < STATUS_STEPS.length - 1}
+                stepNumber={index + 1}
+              />
+            ))}
           </div>
         )}
 
